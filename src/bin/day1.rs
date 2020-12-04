@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -42,26 +43,27 @@ where
 
 fn solve_part1(vec: Vec<i64>) -> i64 {
     // Part 1
-    // O(N^2) solution
-    for x in &vec {
-        for y in &vec {
-            if x + y == 2020 {
-                return x * y;
-            }
+    // HashSet
+    // https://doc.rust-lang.org/std/collections/struct.HashSet.html
+    let set: HashSet<i64> = vec.into_iter().collect();
+    let target = 2020i64;
+    for x in &set {
+        let y = target - x;
+        if set.contains(&y) {
+            return x * y;
         }
     }
     panic!("not found")
 }
 
 fn solve_part2(vec: Vec<i64>) -> i64 {
-    // Part 1
-    // O(N^2) solution
-    for x in &vec {
-        for y in &vec {
-            for z in &vec {
-                if x + y + z == 2020 {
-                    return x * y * z;
-                }
+    let set: HashSet<i64> = vec.into_iter().collect();
+    let target = 2020i64;
+    for x in &set {
+        for y in &set {
+            let z = target - x - y;
+            if set.contains(&z) {
+                return x * y * z;
             }
         }
     }
