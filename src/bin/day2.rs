@@ -4,33 +4,31 @@ use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
-    let input = "input/day2.txt";
-    let mut ans = 0;
-    if let Ok(lines) = read_lines(input) {
-        for line in lines {
-            ans += if is_valid(&line.unwrap()) { 1 } else { 0 };
-        }
-    }
+    // part1
+    let ans = read_lines("input/day2.txt")
+        .filter(|line| {
+            is_valid(line.as_ref().unwrap())
+        })
+        .count();
     println!("{:?}", ans);
 
-    let input = "input/day2.txt";
-    let mut ans = 0;
-    if let Ok(lines) = read_lines(input) {
-        for line in lines {
-            ans += if is_valid2(&line.unwrap()) { 1 } else { 0 };
-        }
-    }
+    // part2
+    let ans = read_lines("input/day2.txt")
+        .filter(|line| {
+            is_valid2(line.as_ref().unwrap())
+        })
+        .count();
     println!("{:?}", ans);
 }
 
 // The output is wrapped in a Result to allow matching on errors
 // Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+fn read_lines<P>(filename: P) -> io::Lines<io::BufReader<File>>
 where
     P: AsRef<Path>,
 {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+    let file = File::open(filename).unwrap();
+    io::BufReader::new(file).lines()
 }
 
 fn is_valid(input: &str) -> bool {
@@ -65,10 +63,16 @@ fn is_valid2(input: &str) -> bool {
 
     let a: usize = caps.get(1).map(|c| c.as_str().parse().unwrap()).unwrap();
     let b: usize = caps.get(2).map(|c| c.as_str().parse().unwrap()).unwrap();
-    let letter = caps.get(3).map(|c| c.as_str()).unwrap().chars().nth(0).unwrap();
+    let letter = caps
+        .get(3)
+        .map(|c| c.as_str())
+        .unwrap()
+        .chars()
+        .nth(0)
+        .unwrap();
     let password = caps.get(4).map(|c| c.as_str()).unwrap();
 
-    let cond1 = password.chars().nth(a-1).unwrap() == letter;
-    let cond2 = password.chars().nth(b-1).unwrap() == letter;
+    let cond1 = password.chars().nth(a - 1).unwrap() == letter;
+    let cond2 = password.chars().nth(b - 1).unwrap() == letter;
     return cond1 ^ cond2;
 }
