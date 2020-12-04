@@ -1,6 +1,6 @@
+use aoc::read_lines;
+
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
@@ -17,27 +17,14 @@ fn main() {
     println!("part2={}", ans);
 }
 
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
-
 // read integers or die
 fn read_integers<P>(filename: P) -> Vec<i64>
 where
     P: AsRef<Path>,
 {
-    let mut vec: Vec<i64> = vec![];
-    if let Ok(lines) = read_lines(filename) {
-        for line in lines {
-            vec.push(line.unwrap().parse().unwrap());
-        }
-    }
+    let vec: Vec<i64> = read_lines(filename)
+        .map(|line| line.unwrap().parse().unwrap())
+        .collect();
     vec
 }
 

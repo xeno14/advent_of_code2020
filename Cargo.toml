@@ -9,6 +9,10 @@ edition = "2018"
 [dependencies]
 regex = "1.4.2"
 
+[lib]
+name = "aoc"
+path = "src/lib.rs"
+
 [[bin]]
 name = "day1"
 src = "src/day1.rs"

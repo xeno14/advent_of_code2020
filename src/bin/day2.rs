@@ -1,7 +1,5 @@
+use aoc::read_lines;
 use regex::Regex;
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
 
 fn main() {
     // part1
@@ -19,16 +17,6 @@ fn main() {
         })
         .count();
     println!("{:?}", ans);
-}
-
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Lines<io::BufReader<File>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename).unwrap();
-    io::BufReader::new(file).lines()
 }
 
 fn is_valid(input: &str) -> bool {
