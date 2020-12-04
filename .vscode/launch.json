@@ -11,11 +11,11 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=advent_of_code2020",
+                    "--bin=day2",
                     "--package=advent_of_code2020"
                 ],
                 "filter": {
-                    "name": "advent_of_code2020",
+                    "name": "day2",
                     "kind": "bin"
                 }
             },
