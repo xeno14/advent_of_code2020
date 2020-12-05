@@ -58,6 +58,14 @@ pub mod day4 {
         }
     }
 
+    // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+    pub fn validate_eyr(eyr: &str) -> Result<(), Err> {
+        match validate_year(eyr, 2020, 2030) {
+            Ok(ok) => Ok(ok),
+            Err(e) => Err(format!("{} {}", eyr, e)),
+        }
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -92,6 +100,15 @@ pub mod day4 {
             assert!(validate_iyr("02015").is_err());
             assert!(validate_iyr("1919").is_err());
             assert!(validate_iyr("2021").is_err());
+        }
+
+        #[test]
+        fn test_validate_eyr() {
+            assert_eq!(Ok(()), validate_eyr("2020"));
+            assert_eq!(Ok(()), validate_eyr("2030"));
+
+            assert!(validate_eyr("02025").is_err());
+            assert!(validate_eyr("1919").is_err());
         }
     }
 }
