@@ -51,10 +51,7 @@ fn validate_item(item: &str) -> Result<(), String> {
     // If cm, the number must be at least 150 and at most 193.
     // If in, the number must be at least 59 and at most 76.
     let hgt: String = extract_field(item, "hgt")?;
-    match validate_height(&hgt) {
-        Ok(_) => (),
-        Err(e) => return Err(e),
-    };
+    validate_hgt(&hgt)?;
 
     // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
     let hcl: String = extract_field(item, "hcl")?;
@@ -87,41 +84,6 @@ fn validate_item(item: &str) -> Result<(), String> {
 
     // cid (Country ID) - ignored, missing or not.
 
-    Ok(())
-}
-
-fn validate_height(hgt: &str) -> Result<(), String> {
-    let expr = r"(\d+)([a-z]+)";
-
-    let caps = Regex::new(expr.as_ref())
-        .map_err(|e| e.to_string())?
-        .captures(hgt)
-        .ok_or(format!("unable to capture {}", expr))?;
-
-    let height = caps
-        .get(1)
-        .ok_or(format!("digit not found"))?
-        .as_str()
-        .parse::<u32>()
-        .map_err(|e| e.to_string())?;
-    let unit = caps
-        .get(2)
-        .ok_or(format!("unit not found"))?
-        .as_str()
-        .to_string();
-
-    // hgt (Height) - a number followed by either cm or in:
-    if unit != "cm" && unit != "in" {
-        return Err("wrong unit".to_owned());
-    }
-    // If cm, the number must be at least 150 and at most 193.
-    if unit == "cm" && !(150 <= height && height <= 193) {
-        return Err("invalid height for cm".to_owned());
-    }
-    // If in, the number must be at least 59 and at most 76.
-    else if unit == "in" && !(59 <= height && height <= 76) {
-        return Err("invalid height for in".to_owned());
-    }
     Ok(())
 }
 

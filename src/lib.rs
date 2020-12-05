@@ -66,6 +66,40 @@ pub mod day4 {
         }
     }
 
+    /// hgt (Height) - a number followed by either cm or in:
+    /// If cm, the number must be at least 150 and at most 193.
+    /// If in, the number must be at least 59 and at most 76.
+    pub fn validate_hgt(hgt: &str) -> Result<(), String> {
+        let expr = r"(\d+)(cm|in)";
+
+        let caps = regex::Regex::new(expr.as_ref())
+            .map_err(|e| e.to_string())?
+            .captures(hgt)
+            .ok_or(format!("unable to capture {}", expr))?;
+
+        let height: u32 = caps
+            .get(1)
+            .ok_or(format!("digit not found"))?
+            .as_str()
+            .parse::<u32>()
+            .map_err(|e| e.to_string())?;
+        let unit: String = caps
+            .get(2)
+            .ok_or(format!("unit not found"))?
+            .as_str()
+            .to_string();
+
+        // If cm, the number must be at least 150 and at most 193.
+        if unit == "cm" && !(150 <= height && height <= 193) {
+            return Err("invalid height cm".to_owned());
+        }
+        // If in, the number must be at least 59 and at most 76.
+        else if unit == "in" && !(59 <= height && height <= 76) {
+            return Err("invalid height in".to_owned());
+        }
+        Ok(())
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -109,6 +143,17 @@ pub mod day4 {
 
             assert!(validate_eyr("02025").is_err());
             assert!(validate_eyr("1919").is_err());
+        }
+
+        #[test]
+        fn test_validate_hgt() {
+            assert_eq!(Ok(()), validate_hgt("150cm"));
+            assert_eq!(Ok(()), validate_hgt("193cm"));
+            assert_eq!(Ok(()), validate_hgt("59in"));
+            assert_eq!(Ok(()), validate_hgt("76in"));
+
+            assert!(validate_hgt("190in").is_err());
+            assert!(validate_hgt("190").is_err());
         }
     }
 }
