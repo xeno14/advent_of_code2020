@@ -5,17 +5,20 @@ use aoc::day4::*;
 
 fn main() {
     let items = read_items(Path::new("input/day4-valid.txt"));
-    assert_eq!(4, validate_items(&items));
+    assert_eq!(4, validate_items(items.into_iter()));
 
     let items = read_items(Path::new("input/day4-invalid.txt"));
-    assert_eq!(0, validate_items(&items));
+    assert_eq!(0, validate_items(items.into_iter()));
 
     let items = read_items(Path::new("input/day4.txt"));
-    let ans = validate_items(&items);
+    let ans = validate_items(items.into_iter());
     println!("{}", ans);
 }
 
-fn validate_items(items :&Vec<String>) -> usize {
+fn validate_items<I>(items: I) -> usize
+where
+    I: Iterator<Item = String>,
+{
     items
         .into_iter()
         .map(|item| validate_item(&item.to_string()))
@@ -50,7 +53,6 @@ fn validate_item(item: &str) -> Result<(), String> {
 
     Ok(())
 }
-
 
 fn read_items(path: &Path) -> Vec<String> {
     // std::fs::read_to_string
