@@ -41,17 +41,11 @@ fn validate_item(item: &str) -> Result<(), String> {
 
     // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
     let iyr: String = extract_field(item, "iyr")?;
-    validate_iyr(&iyr);
+    validate_iyr(&iyr)?;
 
     // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
     let eyr: String = extract_field(item, "eyr")?;
-    if eyr.len() != 4 {
-        return Err(format!("eyr not 4 digit '{}'", eyr));
-    }
-    let ery: u32 = eyr.parse::<u32>().map_err(|e| e.to_string())?;
-    if !(2020 <= ery && ery <= 2030) {
-        return Err("ery out of range".to_owned());
-    }
+    validate_eyr(&eyr)?;
 
     // hgt (Height) - a number followed by either cm or in:
     // If cm, the number must be at least 150 and at most 193.
