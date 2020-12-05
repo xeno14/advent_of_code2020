@@ -100,6 +100,26 @@ pub mod day4 {
         Ok(())
     }
 
+    /// hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+    pub fn validate_hcl(hcl: &str) -> Result<(), String> {
+        let expr = r"^#([0-9a-z]{6})$";
+
+        // let caps =
+        regex::Regex::new(expr.as_ref())
+            .map_err(|e| e.to_string())?
+            .captures(hcl)
+            .ok_or(format!("unable to capture {}", expr))?;
+
+        // let color = caps
+        //     .get(1)
+        //     .ok_or(format!("unable to capture {}", expr))?
+        //     .as_str();
+        // if color.len() != 6 {
+        //     return Err("color is not 6digit".to_owned());
+        // }
+        Ok(())
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -154,6 +174,18 @@ pub mod day4 {
 
             assert!(validate_hgt("190in").is_err());
             assert!(validate_hgt("190").is_err());
+        }
+
+        #[test]
+        fn test_validate_hcl() {
+            // hcl valid:   #123abc
+            // hcl invalid: #123abz
+            // hcl invalid: 123abc
+            assert_eq!(Ok(()), validate_hcl("#123abc"));
+            assert_eq!(Ok(()), validate_hcl("#123abz"));
+            assert!(validate_hcl("#123abzaaaaaa").is_err());
+            assert!(validate_hcl("123abz").is_err());
+            assert!(validate_hcl("a#23abz").is_err());
         }
     }
 }

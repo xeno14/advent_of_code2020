@@ -35,30 +35,21 @@ fn test(expected: usize, items: Vec<String>) {
 }
 
 fn validate_item(item: &str) -> Result<(), String> {
-    // byr (Birth Year) - four digits; at least 1920 and at most 2002.
     let byr: String = extract_field(item, "byr")?;
     validate_byr(&byr)?;
 
-    // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
     let iyr: String = extract_field(item, "iyr")?;
     validate_iyr(&iyr)?;
 
-    // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
     let eyr: String = extract_field(item, "eyr")?;
     validate_eyr(&eyr)?;
 
-    // hgt (Height) - a number followed by either cm or in:
-    // If cm, the number must be at least 150 and at most 193.
-    // If in, the number must be at least 59 and at most 76.
     let hgt: String = extract_field(item, "hgt")?;
     validate_hgt(&hgt)?;
 
     // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
     let hcl: String = extract_field(item, "hcl")?;
-    match validate_haircolor(&hcl) {
-        Ok(_) => (),
-        Err(e) => return Err(e),
-    };
+    validate_hcl(&hcl)?;
 
     // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
     let valid_ecl: std::collections::HashSet<String> =
@@ -87,24 +78,6 @@ fn validate_item(item: &str) -> Result<(), String> {
     Ok(())
 }
 
-// hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
-fn validate_haircolor(hcl: &str) -> Result<(), String> {
-    let expr = r"#([0-9a-z]{6})";
-
-    let caps = Regex::new(expr.as_ref())
-        .map_err(|e| e.to_string())?
-        .captures(hcl)
-        .ok_or(format!("unable to capture {}", expr))?;
-
-    let color = caps
-        .get(1)
-        .ok_or(format!("unable to capture {}", expr))?
-        .as_str();
-    if color.len() != 6 {
-        return Err("color is not 6digit".to_owned());
-    }
-    Ok(())
-}
 
 fn read_file(path: &Path) -> Vec<String> {
     // std::fs::read_to_string
