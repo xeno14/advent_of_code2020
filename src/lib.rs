@@ -11,10 +11,27 @@ where
 }
 
 pub mod day4 {
-    pub type Res = Result<(), String>;
+    pub type Err = String;
 
-    // validate year
-    fn validate_year(year: &str, min: u32, max: u32) -> Res {
+    /// extract the value of a field
+    pub fn extract_field(item: &str, field: &str) -> Result<String, Err> {
+        let exp: String = format!(r"{}:([^\s]+)", field);
+
+        let caps = regex::Regex::new(exp.as_ref())
+            .map_err(|e| e.to_string())?
+            .captures(item)
+            .ok_or(format!("unable to capture {}", exp))?;
+
+        let value = caps
+            .get(1)
+            .ok_or(format!("unable to capture {}", field))?
+            .as_str()
+            .to_string();
+        Ok(value)
+    }
+
+    /// validate year
+    fn validate_year(year: &str, min: u32, max: u32) -> Result<(), Err> {
         if year.len() != 4 {
             return Err("not 4 digits".to_owned());
         }
@@ -26,7 +43,7 @@ pub mod day4 {
     }
 
     /// byr (Birth Year) - four digits; at least 1920 and at most 2002.
-    pub fn validate_byr(byr: &str) -> Res {
+    pub fn validate_byr(byr: &str) -> Result<(), Err> {
         match validate_year(byr, 1920, 2002) {
             Ok(ok) => Ok(ok),
             Err(e) => Err(format!("{} {}", byr, e)),
@@ -34,7 +51,7 @@ pub mod day4 {
     }
 
     // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
-    pub fn validate_iyr(iyr: &str) -> Res {
+    pub fn validate_iyr(iyr: &str) -> Result<(), Err> {
         match validate_year(iyr, 2010, 2020) {
             Ok(ok) => Ok(ok),
             Err(e) => Err(format!("{} {}", iyr, e)),
@@ -44,6 +61,15 @@ pub mod day4 {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn test_extract_field() {
+            let item = "iyr:2010 hgt:158cm hcl:#b6652a";
+            assert_eq!(Ok("2010".to_owned()), extract_field(item, "iyr"));
+            assert_eq!(Ok("158cm".to_owned()), extract_field(item, "hgt"));
+
+            assert!(extract_field(item, "byr").is_err())
+        }
 
         #[test]
         fn test_validate_byr() {

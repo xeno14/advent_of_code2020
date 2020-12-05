@@ -34,22 +34,6 @@ fn test(expected: usize, items: Vec<String>) {
     }
 }
 
-pub fn extract_field(item: &str, field: &str) -> Result<String, String> {
-    let exp: String = format!(r"{}:([^\s]+)", field);
-
-    let caps = Regex::new(exp.as_ref())
-        .map_err(|e| e.to_string())?
-        .captures(item)
-        .ok_or(format!("unable to capture {}", exp))?;
-
-    let value = caps
-        .get(1)
-        .ok_or(format!("unable to capture {}", field))?
-        .as_str()
-        .to_string();
-    Ok(value)
-}
-
 fn validate_item(item: &str) -> Result<(), String> {
     // byr (Birth Year) - four digits; at least 1920 and at most 2002.
     let byr: String = extract_field(item, "byr")?;
