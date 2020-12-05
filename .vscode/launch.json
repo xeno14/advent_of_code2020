@@ -19,11 +19,11 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=day5",
+                    "--bin=day4",
                     "--package=advent_of_code2020"
                 ],
                 "filter": {
-                    "name": "day5",
+                    "name": "day4",
                     "kind": "bin"
                 }
             },
@@ -37,14 +37,8 @@
             "cargo": {
                 "args": [
                     "test",
-                    "--no-run",
-                    "--bin=advent_of_code2020",
-                    "--package=advent_of_code2020"
-                ],
-                "filter": {
-                    "name": "advent_of_code2020",
-                    "kind": "bin"
-                }
+                    "--lib",
+                ]
             },
             "args": [],
             "cwd": "${workspaceFolder}"
