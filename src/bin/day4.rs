@@ -1,4 +1,3 @@
-use regex::Regex;
 use std::fs;
 use std::path::Path;
 
@@ -53,27 +52,9 @@ fn validate_item(item: &str) -> Result<(), String> {
     let ecl: String = extract_field(item, "ecl")?;
     validate_ecl(&ecl)?;
 
-    // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
-    let valid_ecl: std::collections::HashSet<String> =
-        ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
-            .iter()
-            .cloned()
-            .map(|s| s.to_string())
-            .collect();
-    let ecl: String = extract_field(item, "ecl")?;
-    if !valid_ecl.contains(&ecl) {
-        return Err("invalid ecl".to_owned());
-    }
-
     // pid (Passport ID) - a nine-digit number, including leading zeroes.
     let pid: String = extract_field(item, "pid")?;
-    match Regex::new("([0-9]{8})")
-        .map_err(|e| e.to_string())?
-        .captures(&pid)
-    {
-        Some(_) => (),
-        None => return Err("invalid pid".to_owned()),
-    };
+    validate_pid(&pid)?;
 
     // cid (Country ID) - ignored, missing or not.
 

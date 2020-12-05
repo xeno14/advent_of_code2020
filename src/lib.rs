@@ -126,6 +126,16 @@ pub mod day4 {
         Ok(())
     }
 
+    /// pid (Passport ID) - a nine-digit number, including leading zeroes.
+    pub fn validate_pid(pid: &str) -> Result<(), String> {
+        let expr = "^([0-9]{9})$";
+        regex::Regex::new(expr)
+            .map_err(|e| e.to_string())?
+            .captures(&pid)
+            .ok_or(format!("unable to capture {}", expr))?;
+        Ok(())
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -200,6 +210,15 @@ pub mod day4 {
             // ecl invalid: wat
             assert!(validate_ecl("brn").is_ok());
             assert!(validate_ecl("wat").is_err());
+        }
+
+        #[test]
+        fn test_validate_pid() {
+            // pid valid:   000000001
+            // pid invalid: 0123456789
+            assert_eq!(Ok(()), validate_pid("000000001"));
+            assert!(validate_pid("0123456789").is_err());
+            assert!(validate_pid("01234567").is_err());
         }
     }
 }
