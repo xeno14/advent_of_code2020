@@ -70,7 +70,7 @@ pub mod day4 {
     /// If cm, the number must be at least 150 and at most 193.
     /// If in, the number must be at least 59 and at most 76.
     pub fn validate_hgt(hgt: &str) -> Result<(), String> {
-        let expr = r"(\d+)(cm|in)";
+        let expr = r"^(\d+)(cm|in)$";
 
         let caps = regex::Regex::new(expr.as_ref())
             .map_err(|e| e.to_string())?
@@ -109,14 +109,20 @@ pub mod day4 {
             .map_err(|e| e.to_string())?
             .captures(hcl)
             .ok_or(format!("unable to capture {}", expr))?;
+        Ok(())
+    }
 
-        // let color = caps
-        //     .get(1)
-        //     .ok_or(format!("unable to capture {}", expr))?
-        //     .as_str();
-        // if color.len() != 6 {
-        //     return Err("color is not 6digit".to_owned());
-        // }
+    /// ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+    pub fn validate_ecl(ecl: &str) -> Result<(), String> {
+        let valid_ecl: std::collections::HashSet<String> =
+            ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+                .iter()
+                .cloned()
+                .map(|s| s.to_string())
+                .collect();
+        if !valid_ecl.contains(ecl) {
+            return Err("invalid ecl".to_owned());
+        }
         Ok(())
     }
 
@@ -186,6 +192,14 @@ pub mod day4 {
             assert!(validate_hcl("#123abzaaaaaa").is_err());
             assert!(validate_hcl("123abz").is_err());
             assert!(validate_hcl("a#23abz").is_err());
+        }
+
+        #[test]
+        fn test_validate_ecl() {
+            // ecl valid:   brn
+            // ecl invalid: wat
+            assert!(validate_ecl("brn").is_ok());
+            assert!(validate_ecl("wat").is_err());
         }
     }
 }

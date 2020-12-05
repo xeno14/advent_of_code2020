@@ -47,9 +47,11 @@ fn validate_item(item: &str) -> Result<(), String> {
     let hgt: String = extract_field(item, "hgt")?;
     validate_hgt(&hgt)?;
 
-    // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
     let hcl: String = extract_field(item, "hcl")?;
     validate_hcl(&hcl)?;
+
+    let ecl: String = extract_field(item, "ecl")?;
+    validate_ecl(&ecl)?;
 
     // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
     let valid_ecl: std::collections::HashSet<String> =
