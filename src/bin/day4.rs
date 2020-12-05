@@ -4,33 +4,23 @@ use std::path::Path;
 use aoc::day4::*;
 
 fn main() {
-    let items = read_file(Path::new("input/day4-valid.txt"));
-    test(4, items);
-    let items = read_file(Path::new("input/day4-invalid.txt"));
-    test(0, items);
-    let items = read_file(Path::new("input/day4-invalid.txt"));
-    let items = read_file(Path::new("input/day4.txt"));
-    let ans = items
-        .into_iter()
-        .map(|item| validate_item(&item.to_string()))
-        .filter(|item| item.is_ok())
-        .count();
+    let items = read_items(Path::new("input/day4-valid.txt"));
+    assert_eq!(4, validate_items(&items));
+
+    let items = read_items(Path::new("input/day4-invalid.txt"));
+    assert_eq!(0, validate_items(&items));
+
+    let items = read_items(Path::new("input/day4.txt"));
+    let ans = validate_items(&items);
     println!("{}", ans);
 }
 
-fn test(expected: usize, items: Vec<String>) {
-    type Res = Result<(), String>;
-    let (oks, errs): (Vec<Res>, Vec<Res>) = items
+fn validate_items(items :&Vec<String>) -> usize {
+    items
         .into_iter()
         .map(|item| validate_item(&item.to_string()))
-        .partition(Result::is_ok);
-    let ans = oks.into_iter().filter(Result::is_ok).count();
-    for err in errs.into_iter() {
-        println!("{}", err.unwrap_err());
-    }
-    if expected != ans {
-        panic!("test fialed");
-    }
+        .filter(|item| item.is_ok())
+        .count()
 }
 
 fn validate_item(item: &str) -> Result<(), String> {
@@ -62,7 +52,7 @@ fn validate_item(item: &str) -> Result<(), String> {
 }
 
 
-fn read_file(path: &Path) -> Vec<String> {
+fn read_items(path: &Path) -> Vec<String> {
     // std::fs::read_to_string
     // https://doc.rust-lang.org/std/fs/fn.read_to_string.html
     let input = match fs::read_to_string(path) {

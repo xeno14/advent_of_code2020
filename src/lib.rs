@@ -10,6 +10,7 @@ where
     io::BufReader::new(file).lines()
 }
 
+// TODO move to another file
 pub mod day4 {
     pub type Err = String;
 
