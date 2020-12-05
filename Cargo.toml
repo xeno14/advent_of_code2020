@@ -28,6 +28,7 @@ src = "src/day3.rs"
 [[bin]]
 name = "day4"
 src = "src/day4.rs"
+test = true
 
 [[bin]]
 name = "day5"
