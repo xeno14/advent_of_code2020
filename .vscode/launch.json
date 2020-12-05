@@ -5,17 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Debug executable 'advent_of_code2020'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=day3",
+                    "--bin=day5",
                     "--package=advent_of_code2020"
                 ],
                 "filter": {
-                    "name": "day3",
+                    "name": "day5",
                     "kind": "bin"
                 }
             },
