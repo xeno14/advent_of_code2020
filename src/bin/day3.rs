@@ -1,24 +1,34 @@
 use aoc::read_lines;
 
 fn main() {
-    // let input = "input/day3-example.txt";
-    let input = "input/day3-1.txt";
-    let lines: Vec<String> = read_lines(input).map(|line| line.unwrap()).collect();
-    let ans = part1(lines);
+    // part1
+    let lines: Vec<Vec<char>> = read_lines("input/day3.txt")
+        .map(|line| line.unwrap().chars().collect())
+        .collect();
+    let ans = do_slope(&lines, 3, 1);
+    println!("{}", ans);
+
+    // part2
+    let lines: Vec<Vec<char>> = read_lines("input/day3.txt")
+        .map(|line| line.unwrap().chars().collect())
+        .collect();
+    let slopes = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
+    let ans: usize = slopes
+        .into_iter()
+        .map(|(dx, dy)| do_slope(&lines, dx, dy))
+        .product();
     println!("{}", ans);
 }
 
-fn part1(lines: Vec<String>) -> usize {
-    lines
-        .into_iter()
-        .enumerate()
-        .filter(|(y, line)| {
-            if *y == 0usize {
-                false
-            } else {
-                let x = 3 * y % line.len();
-                '#' == line.chars().nth(x).unwrap()
-            }
+fn do_slope(lines: &Vec<Vec<char>>, dx: usize, dy: usize) -> usize {
+    let height = lines.len();
+    let width = lines[0].len();
+    let count = (0..height)
+        .filter(|i| {
+            let x = dx * i % width;
+            let y = dy * i;
+            0 < y && y < height && '#' == lines[y][x]
         })
-        .count()
+        .count();
+    count
 }
