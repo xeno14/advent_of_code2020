@@ -30,23 +30,23 @@ fn main() {
     let items = read_items(filename, " ");
     let ans: usize = items
         .into_iter()
-        .map(|s| {
-            let items: Vec<String> = s.split(" ").map(|t| t.to_owned()).collect();
-            items
-        })
-        .map(count_all_common)
+        .map(|s| count_all_common(s.split(" ").map(|s| s.to_string())))
         .sum();
     println!("{}", ans);
 }
 
-fn count_all_common(items: Vec<String>) -> usize {
-    if items.len() == 0 {
-        return 0usize;
-    }
-    let mut set: HashSet<char> = items[0].chars().collect();
-    for i in 1..items.len() {
-        let t: HashSet<char> = items[i].chars().collect();
-        set = set.intersection(&t).cloned().collect();
+fn count_all_common<I>(mut items: I) -> usize
+where
+    I: Iterator<Item = String>,
+{
+    let s = match items.next() {
+        Some(s) => s,
+        None => return 0,
+    };
+    let mut set: HashSet<char> = s.chars().collect();
+    while let Some(s) = items.next() {
+        let other: HashSet<char> = s.chars().collect();
+        set = set.intersection(&other).cloned().collect();
     }
     let count = set.len();
     count
