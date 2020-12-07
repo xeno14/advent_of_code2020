@@ -34,14 +34,30 @@ def solve_part1(g):
     return len(ok)
 
 
+def solve_part2(g):
+    # assume DAG
+    def rec(u) -> int:
+        l = g[u]
+        if len(l) == 0:
+            return 0
+        s = sum(n*(1+rec(v)) for n, v in l)
+        return s
+    return rec("shiny gold")
+
+
 def main():
     # filename = "input/day7-example.txt"
+    # filename = "input/day7-example2.txt"
     filename = "input/day7.txt"
     with open(filename) as f:
         g = build_graph(f.readlines())
 
     # part1
     ans = solve_part1(g)
+    print(ans)
+
+    # part2
+    ans = solve_part2(g)
     print(ans)
 
 
