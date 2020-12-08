@@ -21,7 +21,7 @@ impl FromStr for Instruction {
         let caps = re.captures(s).unwrap();
         let delta: i64 = caps.get(2).unwrap().as_str().parse()?;
         let ins = match caps.get(1).unwrap().as_str() {
-            "nop" => Instruction::Nop{ delta},
+            "nop" => Instruction::Nop { delta },
             "acc" => Instruction::Acc { delta },
             "jmp" => Instruction::Jmp { delta },
             _ => panic!("unknown instruction"),
@@ -38,7 +38,7 @@ struct Game {
 impl Game {
     fn step(&mut self, inst: &Instruction) -> &Game {
         match inst {
-            Instruction::Nop {delta: _} => {
+            Instruction::Nop { delta: _ } => {
                 self.ip += 1;
                 self
             }
@@ -69,7 +69,7 @@ impl Game {
                 break;
             }
             seen.insert(game.ip);
-        };
+        }
         game
     }
 }
@@ -95,13 +95,12 @@ fn main() {
         let inst = instructions[i].clone();
         // replace
         instructions[i] = match inst {
-            Instruction::Nop{delta} => Instruction::Jmp{ delta},
-            Instruction::Jmp{delta} => Instruction::Nop{ delta},
+            Instruction::Nop { delta } => Instruction::Jmp { delta },
+            Instruction::Jmp { delta } => Instruction::Nop { delta },
             _ => {
                 continue;
             }
         };
-        
         // simulate
         let game = Game::run(&instructions);
         if game.ip == instructions.len() {
