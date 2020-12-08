@@ -3,10 +3,11 @@ use regex::Regex;
 use std::collections::HashSet;
 use std::str::FromStr;
 
+#[derive(Copy, Clone)]
 enum Instruction {
     Acc { delta: i64 },
     Jmp { delta: i64 },
-    Nop,
+    Nop { delta: i64 },
 }
 
 impl FromStr for Instruction {
@@ -20,7 +21,7 @@ impl FromStr for Instruction {
         let caps = re.captures(s).unwrap();
         let delta: i64 = caps.get(2).unwrap().as_str().parse()?;
         let ins = match caps.get(1).unwrap().as_str() {
-            "nop" => Instruction::Nop,
+            "nop" => Instruction::Nop{ delta},
             "acc" => Instruction::Acc { delta },
             "jmp" => Instruction::Jmp { delta },
             _ => panic!("unknown instruction"),
@@ -35,50 +36,81 @@ struct Game {
 }
 
 impl Game {
-    fn process(&mut self, inst: &Instruction) -> &Game {
+    fn step(&mut self, inst: &Instruction) -> &Game {
         match inst {
-            Instruction::Nop => {
+            Instruction::Nop {delta: _} => {
                 self.ip += 1;
                 self
-            },
+            }
             Instruction::Acc { delta } => {
                 self.acc += delta;
                 self.ip += 1;
                 self
             }
             Instruction::Jmp { delta } => {
-                self.ip = if *delta < 0 { 
+                self.ip = if *delta < 0 {
                     self.ip - delta.abs() as usize
-                }
-                else {
+                } else {
                     self.ip + *delta as usize
                 };
                 self
             }
         }
     }
+
+    fn run(instructions: &Vec<Instruction>) -> Game {
+        let mut seen: HashSet<usize> = HashSet::new();
+        seen.insert(0);
+        let mut game = Game { acc: 0, ip: 0 };
+        loop {
+            let inst = &instructions[game.ip];
+            game.step(inst);
+            if seen.contains(&game.ip) || game.ip == instructions.len() {
+                break;
+            }
+            seen.insert(game.ip);
+        };
+        game
+    }
 }
 
 fn main() {
+    // let filename = "input/day8-example.txt";
     let filename = "input/day8.txt";
+
+    // part1
     let instructions: Vec<Instruction> = read_lines(filename)
         .map(|line| Instruction::from_str(line.as_ref().unwrap()))
         .filter_map(Result::ok)
         .collect();
-    let mut seen: HashSet<usize> = HashSet::new();
-    seen.insert(0);
-    let mut game = Game { acc: 0, ip: 0 };
-    loop {
-        let inst = &instructions[game.ip];
-        game.process(inst);
-        if seen.contains(&game.ip) {
-            println!("acc={}", game.acc);
+    let game = Game::run(&instructions);
+    println!("{}", game.acc);
+
+    // part2
+    let mut instructions: Vec<Instruction> = read_lines(filename)
+        .map(|line| Instruction::from_str(line.as_ref().unwrap()))
+        .filter_map(Result::ok)
+        .collect();
+    for i in 0..instructions.len() {
+        let inst = instructions[i].clone();
+        // replace
+        instructions[i] = match inst {
+            Instruction::Nop{delta} => Instruction::Jmp{ delta},
+            Instruction::Jmp{delta} => Instruction::Nop{ delta},
+            _ => {
+                continue;
+            }
+        };
+        
+        // simulate
+        let game = Game::run(&instructions);
+        if game.ip == instructions.len() {
             break;
         }
-        seen.insert(game.ip);
-    }
 
-    // for ins in instjj
-    //     println!("{}", ins);
-    // }
+        // revert
+        instructions[i] = inst;
+    }
+    let game = Game::run(&instructions);
+    println!("{}", game.acc);
 }
