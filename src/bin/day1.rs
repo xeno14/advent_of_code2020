@@ -9,8 +9,6 @@ fn main() {
     let ans = solve_part1(vec);
     println!("part1={}", ans);
 
-    // Part 2
-    // O(N^3) solution
     let input = "input/day1-2.txt";
     let vec = read_integers(input);
     let ans = solve_part2(vec);

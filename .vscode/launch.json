@@ -19,11 +19,11 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=day8",
+                    "--bin=day9",
                     "--package=advent_of_code2020"
                 ],
                 "filter": {
-                    "name": "day8",
+                    "name": "day9",
                     "kind": "bin"
                 }
             },
