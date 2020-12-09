@@ -3,13 +3,12 @@ use aoc::read_lines;
 use std::collections::HashSet;
 use std::path::Path;
 use std::collections::VecDeque;
-use std::collections::vec_deque::Iter;
 
 fn main() {
     // let filename = "input/day9-example.txt";
     // let preamble = 5;
     let filename = "input/day9.txt";
-    let preamble = 5;
+    let preamble = 25;
 
     let vec = read_integers(filename);
     let mut dq = VecDeque::new();
@@ -27,7 +26,8 @@ fn main() {
     }
 }
 
-fn two_sum<'a>(iter: Iter<'a, i64>, target: i64) -> bool {
+fn two_sum<'a, I>(iter: I, target: i64) -> bool
+where I: Iterator<Item = &'a i64>{
     let mut set:HashSet<i64> = HashSet::new();
     for x in iter {
         let y = target - *x;
@@ -37,14 +37,6 @@ fn two_sum<'a>(iter: Iter<'a, i64>, target: i64) -> bool {
         set.insert(*x);
     }
     return false;
-}
-
-fn con_sum<'a>(iter: Iter<'a, i64>, target: i64) -> bool {
-    iter.scan(0, |acc, &x| {
-        *acc += x;
-        Some(*acc)
-    })
-    .map(|&x| x == target)
 }
 
 // read integers or die
