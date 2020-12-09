@@ -11,19 +11,26 @@ fn main() {
     let preamble = 25;
 
     let vec = read_integers(filename);
+    let ans = find_invalid(vec.iter(), preamble).unwrap();
+    println!("{}", ans);
+}
+
+fn find_invalid<'a, I>(iter: I, preamble: usize) -> Result<i64, String>
+where I: Iterator<Item = &'a i64>
+{
     let mut dq = VecDeque::new();
-    for x in vec.into_iter() {
+    for &x in iter {
         if dq.len() < preamble {
             dq.push_back(x);
             continue;
         }
         if !two_sum(dq.iter(), x) {
-            println!("{}", x);
-            break;
+            return Ok(x);
         }
         dq.pop_front();
         dq.push_back(x);
     }
+    Err("not found".to_owned())
 }
 
 fn two_sum<'a, I>(iter: I, target: i64) -> bool
