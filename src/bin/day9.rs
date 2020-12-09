@@ -30,8 +30,8 @@ fn main() {
             if sum == ans {
                 // find the min and max from a[i+1], ..., a[j]
                 let subslice = vec.get((i + 1)..(j + 1)).unwrap();
-                let min = subslice.iter().fold(std::i64::MAX, |acc, x| *x.min(&acc));
-                let max = subslice.iter().fold(std::i64::MIN, |acc, x| *x.max(&acc));
+                let min = subslice.iter().min().unwrap();
+                let max = subslice.iter().max().unwrap();
                 println!("{} + {} = {}", min, max, min + max);
                 return;
             }
