@@ -44,3 +44,14 @@ where
     }
     items
 }
+
+/// read integers or die
+pub fn read_integers<P>(filename: P) -> Vec<i64>
+where
+    P: AsRef<Path>,
+{
+    let vec: Vec<i64> = read_lines(filename)
+        .map(|line| line.unwrap().parse().unwrap())
+        .collect();
+    vec
+}
