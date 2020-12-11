@@ -1,6 +1,5 @@
 use aoc::read_lines;
 
-use std::fmt;
 use std::path::Path;
 
 // model implementation after https://rustwasm.github.io/book/game-of-life/implementing.html
@@ -33,9 +32,9 @@ impl Ferry {
                     Seat::Floor => '.',
                 };
                 print!("{}", c);
-            };
+            }
             println!("");
-        };
+        }
     }
 
     fn occupied_neighbor_count(&self, row: u32, col: u32) -> usize {
@@ -79,10 +78,12 @@ impl Ferry {
 
                 let next_seat = match (seat, occupied_neighbors) {
                     (Seat::Empty, 0) => Seat::Occupied,
-                    (Seat::Occupied, x) => if x >= 4 {
-                        Seat::Empty
-                    } else {
-                        Seat::Occupied
+                    (Seat::Occupied, x) => {
+                        if x >= 4 {
+                            Seat::Empty
+                        } else {
+                            Seat::Occupied
+                        }
                     }
                     (otherwise, _) => otherwise,
                 };
@@ -109,33 +110,35 @@ impl Ferry {
                     '.' => Seat::Floor,
                     'L' => Seat::Empty,
                     '#' => Seat::Occupied,
-                    _ => panic!("unable to parse")
+                    _ => panic!("unable to parse"),
                 })
                 .collect();
             seats.append(&mut vec);
             height += 1;
         }
         let width = seats.len() as u32 / height;
-        Ferry{seats, height, width}
+        Ferry {
+            seats,
+            height,
+            width,
+        }
     }
 }
-
-// fn next_step(grid: Vec<Vec<Seat>>) -> Vec<Vec<Seat>> {
-//     let next:Vec<Vec<Seat>> = grid
-// }
 
 fn main() {
     // let filename = "input/day11-example.txt";
     let filename = "input/day11.txt";
     let mut ferry = Ferry::parse(filename);
-    // let grid = read_grid(filename);
-    // println!("{}", ferry);
-    while ferry.tick() {};
-    ferry.dump();
+    while ferry.tick() {}
+    // ferry.dump();
     // count occupied
-    let ans: u32 = ferry.seats.iter().map(|&s| match s {
-        Seat::Occupied => 1,
-        _ => 0,
-    }).sum();
+    let ans: u32 = ferry
+        .seats
+        .iter()
+        .map(|&s| match s {
+            Seat::Occupied => 1,
+            _ => 0,
+        })
+        .sum();
     println!("{}", ans);
 }
