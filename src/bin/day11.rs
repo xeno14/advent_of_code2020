@@ -97,6 +97,73 @@ impl Ferry {
         updated
     }
 
+    fn occupied_visible_count(&self, row: u32, col: u32) -> usize {
+        let mut count = 0;
+        for dr in [-1, 0, 1].iter().cloned() {
+            for dc in [-1, 0, 1].iter().cloned() {
+                // exclude myself
+                if dr == 0 && dc == 0 {
+                    continue;
+                }
+                // loop until finding the first occupied or reaching out of range
+                let mut i = 1;
+                loop {
+                    let nrow: i64 = row as i64 + dr * i;
+                    let ncol: i64 = col as i64 + dc * i;
+                    if nrow < 0
+                        || nrow >= self.height as i64
+                        || ncol < 0
+                        || ncol >= self.width as i64
+                    {
+                        break;
+                    }
+                    let nrow = nrow as u32;
+                    let ncol = ncol as u32;
+                    let idx = self.get_index(nrow, ncol);
+                    if self.seats[idx] == Seat::Occupied {
+                        count += 1;
+                        break;
+                    } else if self.seats[idx] == Seat::Empty {
+                        break;
+                    }
+                    i += 1;
+                }
+            }
+        }
+        count
+    }
+
+    fn tick2(&mut self) -> bool {
+        let mut next = self.seats.clone();
+        let mut updated = false;
+
+        for row in 0..self.height {
+            for col in 0..self.width {
+                let idx = self.get_index(row, col);
+                let seat = self.seats[idx];
+                let count = self.occupied_visible_count(row, col);
+
+                let next_seat = match (seat, count) {
+                    (Seat::Empty, 0) => Seat::Occupied,
+                    (Seat::Occupied, x) => {
+                        if x >= 5 {
+                            Seat::Empty
+                        } else {
+                            Seat::Occupied
+                        }
+                    }
+                    (otherwise, _) => otherwise,
+                };
+                if !updated && seat != next_seat {
+                    updated = true;
+                }
+                next[idx] = next_seat;
+            }
+        }
+        self.seats = next;
+        updated
+    }
+
     fn parse<P>(filename: P) -> Ferry
     where
         P: AsRef<Path>,
@@ -131,6 +198,24 @@ fn main() {
     let mut ferry = Ferry::parse(filename);
     while ferry.tick() {}
     // ferry.dump();
+    // count occupied
+    let ans: u32 = ferry
+        .seats
+        .iter()
+        .map(|&s| match s {
+            Seat::Occupied => 1,
+            _ => 0,
+        })
+        .sum();
+    println!("{}", ans);
+
+    let mut ferry = Ferry::parse(filename);
+    // ferry.dump();
+    // println!("");
+    while ferry.tick2() {
+        // ferry.dump();
+        // println!("");
+    }
     // count occupied
     let ans: u32 = ferry
         .seats
