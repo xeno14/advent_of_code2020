@@ -42,32 +42,33 @@ impl FromStr for Action {
     }
 }
 
+trait Ship {
+    fn tick(&mut self, action: Action);
+}
+
 #[derive(Debug)]
-struct Ship {
+struct ShipPart1 {
     // ship's position
     x: i64,
     y: i64,
     // ship's direction
     u: i64,
     v: i64,
-    // relatrive positon to waypoint
-    wx: i64,
-    wy: i64,
 }
 
-impl Ship {
-    pub fn new() -> Ship {
-        Ship {
+impl ShipPart1 {
+    pub fn new() -> ShipPart1 {
+        ShipPart1 {
             x: 0,
             y: 0,
             u: 1,
             v: 0,
-            wx: 10,
-            wy: 1,
         }
     }
+}
 
-    pub fn tick(&mut self, action: Action) {
+impl Ship for ShipPart1 {
+    fn tick(&mut self, action: Action) {
         match action {
             Action::North { value } => {
                 self.y += value as i64;
@@ -86,7 +87,7 @@ impl Ship {
                 let rotate = |u: i64, v: i64| {
                     if degree.is_negative() {
                         (v, -u)
-                    } else { 
+                    } else {
                         (-v, u)
                     }
                 };
@@ -105,32 +106,50 @@ impl Ship {
             }
         }
     }
+}
 
-    /// delta of position: waypoint - ship
-    pub fn delta(&self) -> (i64, i64) {
-        (self.wx - self.x, self.wy - self.y)
+#[derive(Debug)]
+struct ShipPart2 {
+    // ship's position
+    x: i64,
+    y: i64,
+    // relative position of waypoint
+    wx: i64,
+    wy: i64,
+}
+
+impl ShipPart2 {
+    pub fn new() -> ShipPart2 {
+        ShipPart2 {
+            x: 0,
+            y: 0,
+            wx: 10,
+            wy: 1,
+        }
     }
+}
 
-    pub fn tick2(&mut self, action: Action) {
+impl Ship for ShipPart2 {
+    fn tick(&mut self, action: Action) {
         match action {
             Action::North { value } => {
                 self.wy += value as i64;
             }
             Action::South { value } => {
-                self.tick2(Action::North { value: -value });
+                self.tick(Action::North { value: -value });
             }
             Action::East { value } => {
                 self.wx += value as i64;
             }
             Action::West { value } => {
-                self.tick2(Action::East { value: -value });
+                self.tick(Action::East { value: -value });
             }
             Action::Left { degree } => {
                 let n = degree.abs() / 90;
                 let rotate = |u: i64, v: i64| {
                     if degree.is_negative() {
                         (v, -u)
-                    } else { 
+                    } else {
                         (-v, u)
                     }
                 };
@@ -141,7 +160,7 @@ impl Ship {
                 }
             }
             Action::Right { degree } => {
-                self.tick2(Action::Left { degree: -degree });
+                self.tick(Action::Left { degree: -degree });
             }
             Action::Forward { value } => {
                 self.x += self.wx * value as i64;
@@ -160,7 +179,7 @@ fn main() {
         .collect();
 
     // part1
-    let mut ship = Ship::new();
+    let mut ship = ShipPart1::new();
     for action in actions.iter() {
         ship.tick(action.clone());
         println!("{:?}", ship);
@@ -168,9 +187,9 @@ fn main() {
     println!("{}", ship.x.abs() + ship.y.abs());
 
     // part2
-    let mut ship = Ship::new();
+    let mut ship = ShipPart2::new();
     for action in actions.iter() {
-        ship.tick2(action.clone());
+        ship.tick(action.clone());
         println!("{:?}", ship);
     }
     println!("{}", ship.x.abs() + ship.y.abs());
