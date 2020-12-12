@@ -21,7 +21,7 @@ impl Ferry {
         (row * self.width + col) as usize
     }
 
-    fn dump(&self) -> () {
+    pub fn dump(&self) -> () {
         for row in 0..self.height {
             for col in 0..self.width {
                 let idx = self.get_index(row, col);
@@ -39,22 +39,17 @@ impl Ferry {
 
     fn occupied_neighbor_count(&self, row: u32, col: u32) -> usize {
         let mut count = 0;
-        for dr in [self.height - 1, 0, 1].iter().cloned() {
-            for dc in [self.width - 1, 0, 1].iter().cloned() {
+        for dr in [-1i32, 0, 1].iter().cloned() {
+            for dc in [-1i32, 0, 1].iter().cloned() {
                 // exclude myself
                 if dr == 0 && dc == 0 {
                     continue;
                 }
-                // row out of range
-                if dr == self.height - 1 && row == 0 || dr == 1 && row == self.height - 1 {
-                    continue;
+                let nrow: u32 = row.wrapping_add(dr as u32);
+                let ncol: u32 = col.wrapping_add(dc as u32);
+                if nrow >= self.height || ncol >= self.width {
+                    break;
                 }
-                // column out of range
-                if dc == self.width - 1 && col == 0 || dc == 1 && col == self.width - 1 {
-                    continue;
-                }
-                let nrow = (row + dr) % self.height;
-                let ncol = (col + dc) % self.width;
                 let idx = self.get_index(nrow, ncol);
                 count += if self.seats[idx] == Seat::Occupied {
                     1
@@ -99,26 +94,20 @@ impl Ferry {
 
     fn occupied_visible_count(&self, row: u32, col: u32) -> usize {
         let mut count = 0;
-        for dr in [-1, 0, 1].iter().cloned() {
-            for dc in [-1, 0, 1].iter().cloned() {
+        for dr in [-1i32, 0, 1].iter().cloned() {
+            for dc in [-1i32, 0, 1].iter().cloned() {
                 // exclude myself
                 if dr == 0 && dc == 0 {
                     continue;
                 }
-                // loop until finding the first occupied or reaching out of range
+                // loop until reaching a seat or out of range
                 let mut i = 1;
                 loop {
-                    let nrow: i64 = row as i64 + dr * i;
-                    let ncol: i64 = col as i64 + dc * i;
-                    if nrow < 0
-                        || nrow >= self.height as i64
-                        || ncol < 0
-                        || ncol >= self.width as i64
-                    {
+                    let nrow: u32 = row.wrapping_add((dr * i) as u32);
+                    let ncol: u32 = col.wrapping_add((dc * i) as u32);
+                    if nrow >= self.height || ncol >= self.width {
                         break;
                     }
-                    let nrow = nrow as u32;
-                    let ncol = ncol as u32;
                     let idx = self.get_index(nrow, ncol);
                     if self.seats[idx] == Seat::Occupied {
                         count += 1;
