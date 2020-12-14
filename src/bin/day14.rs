@@ -34,6 +34,8 @@ impl Mask {
         result
     }
 
+    /// replace Xs in a mask with bits of n
+    /// e.g. mask1=11001, n=010 => result=01000
     fn gen_mask(mask1: u64, n: u64) -> u64 {
         let mut result = 0;
         let mut base = 1;
@@ -51,18 +53,21 @@ impl Mask {
     }
 
     pub fn apply2(&self, addr: u64) -> Vec<u64> {
-        let mut result = Vec::new();
         // set 1 if 1 in the mask
         let addr = addr | self.mask2;
 
         // generate all the possible conbinations
         let k = self.mask1.count_ones(); // # of X
-        for i in 0..(1 << k) {
-            let a = addr & (!self.mask1);
-            let mask = Self::gen_mask(self.mask1, i);
-            let a = a | mask;
-            result.push(a);
-        }
+        let result: Vec<u64> = (0..(1 << k))
+            .map(|i| {
+                // clear bits to be masked
+                let a = addr & (!self.mask1);
+                // generate mask from i
+                let mask = Self::gen_mask(self.mask1, i);
+                let a = a | mask;
+                a
+            })
+            .collect();
         result
     }
 }
