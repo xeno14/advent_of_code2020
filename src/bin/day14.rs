@@ -3,6 +3,7 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::str::FromStr;
 
+/// part1
 /// value:  10101011
 /// mask:   XXXXX1X0
 ///
@@ -11,9 +12,10 @@ use std::str::FromStr;
 ///
 /// mask2:  00000100
 /// |:      10101110
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Mask {
-    mask1: u64, // 1 if X
-    mask2: u64, // 1 if 1
+    mask1: u64, // 1 if X in the mask
+    mask2: u64, // 1 if 1 in the mask
 }
 
 impl Mask {
@@ -29,6 +31,38 @@ impl Mask {
         let mut result = value & self.mask1;
         // set mask bits
         result |= self.mask2;
+        result
+    }
+
+    fn gen_mask(mask1: u64, n: u64) -> u64 {
+        let mut result = 0;
+        let mut base = 1;
+        let mut mask = mask1;
+        let mut n = n;
+        while mask > 0 {
+            if (mask & 1) == 1 {
+                result += base * (n & 1);
+                n >>= 1;
+            }
+            mask >>= 1;
+            base <<= 1;
+        }
+        result
+    }
+
+    pub fn apply2(&self, addr: u64) -> Vec<u64> {
+        let mut result = Vec::new();
+        // set 1 if 1 in the mask
+        let addr = addr | self.mask2;
+
+        // generate all the possible conbinations
+        let k = self.mask1.count_ones(); // # of X
+        for i in 0..(1 << k) {
+            let a = addr & (!self.mask1);
+            let mask = Self::gen_mask(self.mask1, i);
+            let a = a | mask;
+            result.push(a);
+        }
         result
     }
 }
@@ -52,9 +86,10 @@ impl FromStr for Mask {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Input {
     Mask { mask: Mask },
-    Mem { addr: usize, value: u64 },
+    Mem { addr: u64, value: u64 },
 }
 
 impl FromStr for Input {
@@ -77,7 +112,7 @@ impl FromStr for Input {
                 .map_err(|e| e.to_string())?
                 .captures(s)
                 .ok_or(format!("unable to capture mem'{}'", s))?;
-            let addr: usize = caps.get(1).unwrap().as_str().parse().unwrap();
+            let addr: u64 = caps.get(1).unwrap().as_str().parse().unwrap();
             let value: u64 = caps.get(2).unwrap().as_str().parse().unwrap();
             Input::Mem { addr, value }
         } else {
@@ -88,6 +123,7 @@ impl FromStr for Input {
 }
 
 fn main() {
+    // part1
     let mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X"
         .parse::<Mask>()
         .unwrap();
@@ -100,18 +136,64 @@ fn main() {
     let inputs: Vec<Input> = read_lines(filename)
         .map(|line| line.unwrap().parse().unwrap())
         .collect();
-    let mut memory: HashMap<usize, u64> = HashMap::new();
+    let mut memory: HashMap<u64, u64> = HashMap::new();
     let mut mask = Mask::new();
-    for input in inputs {
+    for input in inputs.iter() {
         match input {
             Input::Mask { mask: mask_ } => {
-                mask = mask_;
+                mask = *mask_;
             }
             Input::Mem { addr, value } => {
-                memory.insert(addr, mask.apply(value));
+                memory.insert(*addr, mask.apply(*value));
             }
         }
     }
     let ans: u64 = memory.values().sum();
-    println!("{}", ans);
+    println!("part1 {}", ans);
+
+    // find maximum number of X
+    // let max_X = inputs.iter().map(|input| match input {
+    //     Input::Mask {mask: mask_} => {
+    //         let n = mask_.mask1.count_ones();
+    //         Some(n)
+    //     }
+    //     _ => None
+    // })
+    // .filter(|x| x.is_some())
+    // .map(|x| x.unwrap())
+    // .max();
+    // println!("{:?}", max_X);
+
+    // part2
+    let mask = "000000000000000000000000000000X1001X"
+        .parse::<Mask>()
+        .unwrap();
+    assert_eq!(vec![26, 27, 58, 59], mask.apply2(42));
+    let mask = "00000000000000000000000000000000X0XX"
+        .parse::<Mask>()
+        .unwrap();
+    assert_eq!(vec![16, 17, 18, 19, 24, 25, 26, 27], mask.apply2(26));
+
+    // let filename = "input/day14-example2.txt";
+    let filename = "input/day14.txt";
+    let inputs: Vec<Input> = read_lines(filename)
+        .map(|line| line.unwrap().parse().unwrap())
+        .collect();
+    let mut memory: HashMap<u64, u64> = HashMap::new();
+    let mut mask = Mask::new();
+    for input in inputs.iter() {
+        match input {
+            Input::Mask { mask: mask_ } => {
+                mask = *mask_;
+            }
+            Input::Mem { addr, value } => {
+                let addrs = mask.apply2(*addr);
+                for addr in addrs.into_iter() {
+                    memory.insert(addr, *value);
+                }
+            }
+        }
+    }
+    let ans: u64 = memory.values().sum();
+    println!("part2 {}", ans);
 }
