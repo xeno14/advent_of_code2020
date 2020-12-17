@@ -5,6 +5,37 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'advent_of_code2020'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=day17",
+                    "--package=advent_of_code2020"
+                ],
+                "filter": {
+                    "name": "day17",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'advent_of_code2020'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--lib",
+                ]
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
@@ -30,37 +61,6 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'advent_of_code2020'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=day15",
-                    "--package=advent_of_code2020"
-                ],
-                "filter": {
-                    "name": "day15",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'advent_of_code2020'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--lib",
-                ]
-            },
-            "args": [],
             "cwd": "${workspaceFolder}"
         }
     ]
