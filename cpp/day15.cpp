@@ -48,19 +48,19 @@ int solve(vector<int> input, int last_turn = 2020) {
 }
 
 int main() {
-//   assert(solve({0, 3, 6}) == 436);
-//   assert(solve({1, 3, 2}) == 1);
-//   assert(solve({2, 1, 3}) == 10);
-//   assert(solve({1, 2, 3}) == 27);
-//   assert(solve({2, 3, 1}) == 78);
-//   assert(solve({3, 2, 1}) == 438);
-//   assert(solve({3, 1, 2}) == 1836);
-//   int ans = solve({0, 1, 4, 13, 15, 12, 16});
-//   cout << ans << endl;
+  //   assert(solve({0, 3, 6}) == 436);
+  //   assert(solve({1, 3, 2}) == 1);
+  //   assert(solve({2, 1, 3}) == 10);
+  //   assert(solve({1, 2, 3}) == 27);
+  //   assert(solve({2, 3, 1}) == 78);
+  //   assert(solve({3, 2, 1}) == 438);
+  //   assert(solve({3, 1, 2}) == 1836);
+  //   int ans = solve({0, 1, 4, 13, 15, 12, 16});
+  //   cout << ans << endl;
 
-constexpr int T = 30000000;
+  constexpr int T = 30000000;
   assert(solve({0, 3, 6}, T) == 175594);
-  assert(solve({3,1,2}, T) == 362);
+  assert(solve({3, 1, 2}, T) == 362);
 
   int ans = solve({0, 1, 4, 13, 15, 12, 16}, T);
   cout << ans << endl;
