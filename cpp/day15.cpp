@@ -9,33 +9,16 @@
 #include <vector>
 using namespace std;
 
-// auto read_input(const string& filename) {
-//   ifstream ifs(filename.c_str());
-//   string s;
-//   int y = 0;
-//   while (ifs >> s) {
-//     for (int x = 0; x < s.size(); ++x) {
-//       if (s[x] == '#') {
-//         res.emplace(x, y, 0);
-//       }
-//     }
-//     ++y;
-//   }
-//   return res;
-// }
-
 int last[30000001];
 int solve(vector<int> input, int last_turn = 2020) {
   fill(last, last + sizeof(last) / sizeof(last[0]), 0);
 
   for (int i = 0; i < input.size(); i++) last[input[i]] = i + 1;
 
-  // start at turn4
   int next = 0;
   int now = 0;
   for (int turn = input.size() + 1; turn <= last_turn; turn++) {
     now = next;
-    // cout << now << endl;
     // seen before
     if (last[now]) {
       next = turn - last[now];
