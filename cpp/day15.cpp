@@ -24,14 +24,16 @@ using namespace std;
 //   return res;
 // }
 
-int part1(vector<int> input) {
-  int last[4096] = {0};
+int last[30000001];
+int solve(vector<int> input, int last_turn = 2020) {
+  fill(last, last + sizeof(last) / sizeof(last[0]), 0);
+
   for (int i = 0; i < input.size(); i++) last[input[i]] = i + 1;
 
   // start at turn4
   int next = 0;
   int now = 0;
-  for (int turn = input.size()+1; turn <= 2020; turn++) {
+  for (int turn = input.size() + 1; turn <= last_turn; turn++) {
     now = next;
     // cout << now << endl;
     // seen before
@@ -46,17 +48,22 @@ int part1(vector<int> input) {
 }
 
 int main() {
-  assert(part1({0, 3, 6}) == 436);
-  assert(part1({1, 3, 2}) == 1);
-  assert(part1({2, 1, 3}) == 10);
-  assert(part1({1, 2, 3}) == 27);
-  assert(part1({2, 3, 1}) == 78);
-  assert(part1({3, 2, 1}) == 438);
-  assert(part1({3, 1, 2}) == 1836);
-  int ans = part1(
-      {0,1,4,13,15,12,16}
-  );
-  cout<<ans<<endl;
+//   assert(solve({0, 3, 6}) == 436);
+//   assert(solve({1, 3, 2}) == 1);
+//   assert(solve({2, 1, 3}) == 10);
+//   assert(solve({1, 2, 3}) == 27);
+//   assert(solve({2, 3, 1}) == 78);
+//   assert(solve({3, 2, 1}) == 438);
+//   assert(solve({3, 1, 2}) == 1836);
+//   int ans = solve({0, 1, 4, 13, 15, 12, 16});
+//   cout << ans << endl;
+
+constexpr int T = 30000000;
+  assert(solve({0, 3, 6}, T) == 175594);
+  assert(solve({3,1,2}, T) == 362);
+
+  int ans = solve({0, 1, 4, 13, 15, 12, 16}, T);
+  cout << ans << endl;
 
   return 0;
 }
