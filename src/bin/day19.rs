@@ -5,7 +5,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 enum Rule {
     Char(char),
-    Or(Box<Rule>, Box<Rule>),
+    Or(Vec<Rule>),
     Seq(Vec<Rule>), // has next
 }
 
@@ -14,8 +14,11 @@ impl Rule {
         Rule::Char(c)
     }
 
-    pub fn new_or(left: Rule, right: Rule) -> Rule {
-        Rule::Or(Box::new(left), Box::new(right))
+    pub fn new_or(or_rules: Vec<Rule>) -> Rule {
+        if or_rules.len() <= 1 {
+            panic!();
+        }
+        Rule::Or(or_rules)
     }
 
     pub fn build(rules: &HashMap<String, String>, ruleno: String) -> Rule {
@@ -26,10 +29,10 @@ impl Rule {
             Rule::new_char(c)
         } else if rule.contains("|") {
             let subrules: Vec<&str> = rule.split('|').map(|s| s.trim()).collect();
-            Rule::new_or(
+            Rule::new_or(vec![
                 Rule::build_seq(rules, subrules[0]),
                 Rule::build_seq(rules, subrules[1]),
-            )
+            ])
         } else {
             Rule::build_seq(rules, rule)
         }
@@ -44,52 +47,16 @@ impl Rule {
         Rule::Seq(seq)
     }
 
-    fn do_match(&self, s: &str) -> (bool, usize) {
-        match self {
-            Rule::Char(c) => {
-                if let Some(other) = s.chars().nth(0) {
-                    if *c == other {
-                        return (true, 1);
-                    }
-                }
-                (false, 0)
-            }
-            Rule::Or(left, right) => {
-                let (left_ok, delta) = left.do_match(s);
-                if left_ok {
-                    (true, delta)
-                } else {
-                    right.do_match(s)
-                }
-            }
-            Rule::Seq(seq) => {
-                let mut t = s;
-                let mut tot_delta = 0;
-                for rule in seq {
-                    let (ok, delta) = rule.do_match(t);
-                    if !ok {
-                        return (false, 0);
-                    }
-                    t = &t[delta..];
-                    tot_delta += delta;
-                }
-                (true, tot_delta)
-            }
-        }
-    }
-
-    pub fn match_str(&self, s: &str) -> bool {
-        let (ok, delta) = self.do_match(s); 
-        ok && delta == s.len()
-    }
-
     pub fn to_regex(&self) -> String {
         match self {
-            Rule::Char(c) => {
-                c.to_string()
-            }
-            Rule::Or(left, right) => {
-                format!("(({})|({}))", left.to_regex(), right.to_regex())
+            Rule::Char(c) => c.to_string(),
+            Rule::Or(or_rules) => {
+                let sub_patterns: Vec<String> = or_rules
+                    .iter()
+                    .map(|rule| format!("({})", rule.to_regex()))
+                    .collect();
+                let pattern = sub_patterns.join("|");
+                format!("({})", pattern)
             }
             Rule::Seq(seq) => {
                 let mut s = "".to_owned();
@@ -100,7 +67,6 @@ impl Rule {
                 format!("{}", s)
             }
         }
-
     }
 }
 
