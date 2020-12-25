@@ -82,6 +82,26 @@ impl Rule {
         let (ok, delta) = self.do_match(s); 
         ok && delta == s.len()
     }
+
+    pub fn to_regex(&self) -> String {
+        match self {
+            Rule::Char(c) => {
+                c.to_string()
+            }
+            Rule::Or(left, right) => {
+                format!("(({})|({}))", left.to_regex(), right.to_regex())
+            }
+            Rule::Seq(seq) => {
+                let mut s = "".to_owned();
+                for rule in seq {
+                    let r = rule.to_regex();
+                    s += &r;
+                }
+                format!("{}", s)
+            }
+        }
+
+    }
 }
 
 fn read_file(filename: &str) -> (HashMap<String, String>, Vec<String>) {
@@ -115,9 +135,15 @@ fn main() {
     let rule = Rule::build(&rules, "0".to_owned());
     println!("{:#?}", rule);
 
+    let pattern = rule.to_regex();
+    let pattern = format!(r"^{}$", pattern);
+    println!("{:#?}", pattern);
+
+    let regex = regex::Regex::new(&pattern).unwrap();
+
     let mut ans = 0;
     for s in strings.iter() {
-        let ok = rule.match_str(s);
+        let ok = regex.is_match(&s);
         println!("{} {}", s, ok);
         if ok {
             ans += 1;
