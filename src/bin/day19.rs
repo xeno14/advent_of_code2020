@@ -7,6 +7,8 @@ enum Rule {
     Char(char),
     Or(Vec<Rule>),
     Seq(Vec<Rule>), // has next
+    Rule8(Box<Rule>),
+    Rule11(Box<Rule>, Box<Rule>),
 }
 
 impl Rule {
@@ -27,6 +29,14 @@ impl Rule {
         if let Some(rule) = rule.strip_prefix("\"") {
             let c: char = rule.strip_suffix("\"").unwrap().chars().next().unwrap();
             Rule::new_char(c)
+        } else if ruleno == "8" {
+            // 8: 42 | 42 8
+            let rule42 = Rule::build(rules, "42".to_owned());
+            Rule::Rule8(Box::new(rule42))
+        } else if ruleno == "11" {
+            let rule42 = Rule::build(rules, "42".to_owned());
+            let rule31 = Rule::build(rules, "42".to_owned());
+            Rule::Rule11(Box::new(rule42), Box::new(rule31))
         } else if rule.contains("|") {
             let subrules: Vec<&str> = rule.split('|').map(|s| s.trim()).collect();
             Rule::new_or(vec![
@@ -65,7 +75,27 @@ impl Rule {
                     s += &r;
                 }
                 format!("{}", s)
-            }
+            },
+            // 8: 42 | 42 8
+            Rule::Rule8(rule42) => {
+                // 42+
+                format!("({})+", rule42.to_regex())
+            },
+            // 11: 42 31 | 42 11 31
+            Rule::Rule11(rule42, rule31) => {
+                // 42*31* but happens the same time...
+                let r42 = rule42.to_regex();
+                let r31 = rule31.to_regex();
+                let mut patterns: Vec<String> = Vec::new();
+                for i in 1..10 {
+                    patterns.push(
+                        r42.repeat(i) + &r31.repeat(i)
+                    );
+                }
+                let pattern = patterns.join("|");
+                // format!("{}({}{})*{}", r42, r42, r31, r31)
+                pattern
+            },
         }
     }
 }
@@ -92,14 +122,15 @@ fn read_file(filename: &str) -> (HashMap<String, String>, Vec<String>) {
 
 fn main() {
     // let filename = "input/day19-example.txt";
-    let filename = "input/day19.txt";
+    let filename = "input/day19-example2.txt";
+    // let filename = "input/day19.txt";
     let (rules, strings) = read_file(filename);
 
-    println!("{:?}", rules);
-    println!("{:?}", strings);
+    // println!("{:?}", rules);
+    // println!("{:?}", strings);
 
     let rule = Rule::build(&rules, "0".to_owned());
-    println!("{:#?}", rule);
+    // println!("{:#?}", rule);
 
     let pattern = rule.to_regex();
     let pattern = format!(r"^{}$", pattern);
@@ -110,8 +141,9 @@ fn main() {
     let mut ans = 0;
     for s in strings.iter() {
         let ok = regex.is_match(&s);
-        println!("{} {}", s, ok);
+        // println!("{} {}", s, ok);
         if ok {
+            println!("{}", s);
             ans += 1;
         }
     }
