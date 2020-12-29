@@ -34,8 +34,9 @@ impl Rule {
             let rule42 = Rule::build(rules, "42".to_owned());
             Rule::Rule8(Box::new(rule42))
         } else if ruleno == "11" {
+            // 11: 42 31 | 42 11 31
             let rule42 = Rule::build(rules, "42".to_owned());
-            let rule31 = Rule::build(rules, "42".to_owned());
+            let rule31 = Rule::build(rules, "31".to_owned());
             Rule::Rule11(Box::new(rule42), Box::new(rule31))
         } else if rule.contains("|") {
             let subrules: Vec<&str> = rule.split('|').map(|s| s.trim()).collect();
@@ -83,16 +84,16 @@ impl Rule {
             },
             // 11: 42 31 | 42 11 31
             Rule::Rule11(rule42, rule31) => {
-                // 42*31* but happens the same time...
+                // 42{1}31{1} | 42{2}31{2} | ...
                 let r42 = rule42.to_regex();
                 let r31 = rule31.to_regex();
                 let mut patterns: Vec<String> = Vec::new();
                 for i in 1..10 {
                     patterns.push(
-                        r42.repeat(i) + &r31.repeat(i)
+                        format!("({}{{{}}}{}{{{}}})", r42, i, r31, i)
                     );
                 }
-                let pattern = patterns.join("|");
+                let pattern = format!("({})", patterns.join("|"));
                 // format!("{}({}{})*{}", r42, r42, r31, r31)
                 pattern
             },
@@ -122,8 +123,9 @@ fn read_file(filename: &str) -> (HashMap<String, String>, Vec<String>) {
 
 fn main() {
     // let filename = "input/day19-example.txt";
-    let filename = "input/day19-example2.txt";
-    // let filename = "input/day19.txt";
+    // let filename = "input/day19-example2.txt";
+    // let filename = "input/day19-example3.txt";
+    let filename = "input/day19.txt";
     let (rules, strings) = read_file(filename);
 
     // println!("{:?}", rules);
