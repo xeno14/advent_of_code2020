@@ -1,6 +1,12 @@
 use aoc::read_lines;
 use std::collections::HashSet;
-// use ndarray::prelude::*;
+
+/// take (1, 0) and (cos(120deg), sin(120deg)) to be a basis.
+/// all the locations of hex can be represented by a linear combination
+/// of the basis of integer coefficient, that's to say, there is a 1to1
+/// mapping between 2 indicies and a hex.
+/// 
+/// part2 is essencially a modified version of the game of life.
 
 fn walk(s: &str) -> (i32, i32) {
     let mut x = 0;
