@@ -5,8 +5,10 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 enum Rule {
     Char(char),
-    Or(Box<Rule>, Box<Rule>),
+    Or(Vec<Rule>),
     Seq(Vec<Rule>), // has next
+    Rule8(Box<Rule>),
+    Rule11(Box<Rule>, Box<Rule>),
 }
 
 impl Rule {
@@ -14,8 +16,11 @@ impl Rule {
         Rule::Char(c)
     }
 
-    pub fn new_or(left: Rule, right: Rule) -> Rule {
-        Rule::Or(Box::new(left), Box::new(right))
+    pub fn new_or(or_rules: Vec<Rule>) -> Rule {
+        if or_rules.len() <= 1 {
+            panic!();
+        }
+        Rule::Or(or_rules)
     }
 
     pub fn build(rules: &HashMap<String, String>, ruleno: String) -> Rule {
@@ -24,12 +29,21 @@ impl Rule {
         if let Some(rule) = rule.strip_prefix("\"") {
             let c: char = rule.strip_suffix("\"").unwrap().chars().next().unwrap();
             Rule::new_char(c)
+        } else if ruleno == "8" {
+            // 8: 42 | 42 8
+            let rule42 = Rule::build(rules, "42".to_owned());
+            Rule::Rule8(Box::new(rule42))
+        } else if ruleno == "11" {
+            // 11: 42 31 | 42 11 31
+            let rule42 = Rule::build(rules, "42".to_owned());
+            let rule31 = Rule::build(rules, "31".to_owned());
+            Rule::Rule11(Box::new(rule42), Box::new(rule31))
         } else if rule.contains("|") {
             let subrules: Vec<&str> = rule.split('|').map(|s| s.trim()).collect();
-            Rule::new_or(
+            Rule::new_or(vec![
                 Rule::build_seq(rules, subrules[0]),
                 Rule::build_seq(rules, subrules[1]),
-            )
+            ])
         } else {
             Rule::build_seq(rules, rule)
         }
@@ -44,43 +58,46 @@ impl Rule {
         Rule::Seq(seq)
     }
 
-    fn do_match(&self, s: &str) -> (bool, usize) {
+    pub fn to_regex(&self) -> String {
         match self {
-            Rule::Char(c) => {
-                if let Some(other) = s.chars().nth(0) {
-                    if *c == other {
-                        return (true, 1);
-                    }
-                }
-                (false, 0)
-            }
-            Rule::Or(left, right) => {
-                let (left_ok, delta) = left.do_match(s);
-                if left_ok {
-                    (true, delta)
-                } else {
-                    right.do_match(s)
-                }
+            Rule::Char(c) => c.to_string(),
+            Rule::Or(or_rules) => {
+                let sub_patterns: Vec<String> = or_rules
+                    .iter()
+                    .map(|rule| format!("({})", rule.to_regex()))
+                    .collect();
+                let pattern = sub_patterns.join("|");
+                format!("({})", pattern)
             }
             Rule::Seq(seq) => {
-                let mut t = s;
-                let mut tot_delta = 0;
+                let mut s = "".to_owned();
                 for rule in seq {
-                    let (ok, delta) = rule.do_match(t);
-                    if !ok {
-                        return (false, 0);
-                    }
-                    t = &t[delta..];
-                    tot_delta += delta;
+                    let r = rule.to_regex();
+                    s += &r;
                 }
-                (true, tot_delta)
-            }
+                format!("{}", s)
+            },
+            // 8: 42 | 42 8
+            Rule::Rule8(rule42) => {
+                // 42+
+                format!("({})+", rule42.to_regex())
+            },
+            // 11: 42 31 | 42 11 31
+            Rule::Rule11(rule42, rule31) => {
+                // 42{1}31{1} | 42{2}31{2} | ...
+                let r42 = rule42.to_regex();
+                let r31 = rule31.to_regex();
+                let mut patterns: Vec<String> = Vec::new();
+                for i in 1..10 {
+                    patterns.push(
+                        format!("({}{{{}}}{}{{{}}})", r42, i, r31, i)
+                    );
+                }
+                let pattern = format!("({})", patterns.join("|"));
+                // format!("{}({}{})*{}", r42, r42, r31, r31)
+                pattern
+            },
         }
-    }
-
-    pub fn match_str(&self, s: &str) -> bool {
-        let (ok, delta) = self.do_match(s); 
-        ok && delta == s.len()
     }
 }
 
@@ -106,20 +123,29 @@ fn read_file(filename: &str) -> (HashMap<String, String>, Vec<String>) {
 
 fn main() {
     // let filename = "input/day19-example.txt";
+    // let filename = "input/day19-example2.txt";
+    // let filename = "input/day19-example3.txt";
     let filename = "input/day19.txt";
     let (rules, strings) = read_file(filename);
 
-    println!("{:?}", rules);
-    println!("{:?}", strings);
+    // println!("{:?}", rules);
+    // println!("{:?}", strings);
 
     let rule = Rule::build(&rules, "0".to_owned());
-    println!("{:#?}", rule);
+    // println!("{:#?}", rule);
+
+    let pattern = rule.to_regex();
+    let pattern = format!(r"^{}$", pattern);
+    println!("{:#?}", pattern);
+
+    let regex = regex::Regex::new(&pattern).unwrap();
 
     let mut ans = 0;
     for s in strings.iter() {
-        let ok = rule.match_str(s);
-        println!("{} {}", s, ok);
+        let ok = regex.is_match(&s);
+        // println!("{} {}", s, ok);
         if ok {
+            println!("{}", s);
             ans += 1;
         }
     }
